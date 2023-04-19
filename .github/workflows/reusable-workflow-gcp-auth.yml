@@ -1,0 +1,31 @@
+name: Authenticate to GCP (Reusable Workflow)
+
+on:
+  workflow_call:
+    inputs:
+      PROJECT_ID:
+        required: true
+        type: string
+      IMAGE_NAME:
+        required: true
+        type: string
+      IMAGE_TAG:
+        required: true
+        type: string
+    secrets:
+      GCLOUD_SERVICE_ACCOUNT_KEY:
+        required: true
+  workflow_dispatch:
+jobs:
+  Build:
+    runs-on: test-runner
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+    - name: Authenticate to Google Cloud
+      id: auth
+      uses: heena-chhabra/gcp-auth@v0
+      with:
+        credentials_json: '${{ secrets.GCLOUD_SERVICE_ACCOUNT_KEY }}'
+    - name: Image to be built
+      run: echo gcr.io/${{ inputs.PROJECT_ID }}/${{ inputs.IMAGE_NAME }}:${{ inputs.IMAGE_TAG }}
